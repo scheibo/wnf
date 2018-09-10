@@ -1,8 +1,6 @@
 package wnf
 
 import (
-	"math"
-
 	"github.com/scheibo/calc"
 )
 
@@ -10,7 +8,7 @@ const Mb = 8.0
 const Mr = 67.0
 
 const CdaClimb = 0.325 // 1.80m
-const CdaTT = 0.250    // ?? TODO
+const CdaTT = 0.250    // ??
 
 type course struct {
 	d, gr, wkg float64
@@ -33,46 +31,46 @@ func Score(h, rho, vw float64) float64 {
 		PowerTT(tt.wkg*Mr, tt.d, h, rho, vw, tt.gr)) / 2
 }
 
-func TimeClimb(p, d, h, rho, vw, gr float64) float64 {
-	return Time360(p, d, h, rho, CdaClimb, vw, gr, Mr+Mb)
-}
-
 func PowerClimb(p, d, h, rho, vw, gr float64) float64 {
 	return Power360(p, d, h, rho, CdaClimb, vw, gr, Mr+Mb)
 }
 
-func TimeTT(p, d, h, rho, vw, gr float64) float64 {
-	return Time360(p, d, h, rho, CdaTT, vw, gr, Mr+Mb)
+func TimeClimb(t, d, h, rho, vw, gr float64) float64 {
+	return Time360(t, d, h, rho, CdaClimb, vw, gr, Mr+Mb)
 }
 
 func PowerTT(p, d, h, rho, vw, gr float64) float64 {
-	return Power360(t, d, h, rho, CdaTT, vw, gr, Mr+Mb)
+	return Power360(p, d, h, rho, CdaTT, vw, gr, Mr+Mb)
 }
 
-func Time360(p, d, h, rho, cda, vw, gr, mt float64) float64 {
+func TimeTT(t, d, h, rho, vw, gr float64) float64 {
+	return Time360(t, d, h, rho, CdaTT, vw, gr, Mr+Mb)
+}
+
+func Power360(p, d, h, rho, cda, vw, gr, mt float64) float64 {
 	s := 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += Time(p, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		s += Power(p, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
 	}
 	return s / 360
 }
 
-func Power360(t, d, h, rho, cda, vw, gr, mt float64) float64 {
+func Time360(t, d, h, rho, cda, vw, gr, mt float64) float64 {
 	s := 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += Power(t, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		s += Time(t, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
 	}
 	return s / 360
 }
 
-func Time(p, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
-	t := time(p, d, calc.Rho(h, calc.G), cda, vw, dw, db, gr, mt)
+func Power(p, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+	t := time(p, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
 	return p / p2
 }
 
-func Power(t, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
-	p1 := power(t, d, calc.Rho(h, calc.G), cda, vw, dw, db, gr, mt)
+func Time(t, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+	p1 := power(t, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
 	return p1 / p2
 }
