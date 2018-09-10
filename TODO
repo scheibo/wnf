@@ -1,0 +1,23 @@
+WNF (weather normalization factor)
+-> uses perf/calc
+=> need to use same constants/assumptions as perf for the baseline
+
+wnf.Score(rho, vw) => assume baselines
+= iterate over baseline conditions and computer wnf.Calc and then average
+
+Polyline (directions/bearings)
+wnf.Calc(<climb, including db>, rho, vw, dw) => % slower
+
+"unit score" for rho + wind
+
+unit climb: 5km 8% grade at sea level (ie/ all one way)
+unit TT: 10mi 0% flat TT out-and-back (ie/ 5mi one direction, 5mi in other)
+directions: headwind, tailwind, crosswind (hw/tw should be same for TT)
+compare to baseline (sea level rho0, no wind)
+***TODO use different cda for TT than climb!
+= average of 6 (5 unique) values percentage compared to baseline
+
+score:  ideally want multiplier on time = 1.12 = 12% faster than baseline day
+
+also: wWatts and wWatts%
+https://mywindsock.com/page/help/metrics-explained/
