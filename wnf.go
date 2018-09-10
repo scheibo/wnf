@@ -6,56 +6,75 @@ import (
 	"github.com/scheibo/calc"
 )
 
-const mb = 8.0
-const mr = 67.0
+const Mb = 8.0
+const Mr = 67.0
 
-const cdaC = 0.325 // 1.80m
-const cdaTT = 0.250 // ?? TODO
+const CdaClimb = 0.325 // 1.80m
+const CdaTT = 0.250    // ?? TODO
 
 type course struct {
 	d, gr, wkg float64
 }
 
 var climb = course{
-	d: 5000.0,
-	gr: 0.080,
-	p: 4.5
+	d:   5000.0,
+	gr:  0.080,
+	wkg: 4.5,
 }
 
 var tt = course{
-	d: 16093.4,
-	gr: 0.0,
-	p: 4.0
+	d:   16093.4,
+	gr:  0.0,
+	wkg: 4.0,
 }
 
-// TTT(p), ClimbT(p)
-// TTP(t), ClimbP(p)
-
-// or, don't bother with that at all? just take in cda/mr/mb and provide default constants
-// Score(rho, cda, crr, va, vg, gr, mt, g, ec, fw float64) float64 {
-
-
-// TODO(kjs): add functionality to convert from points to slices, keep grade constant
-// and ensure tn - t0 = total duration
-type Slice struct {
-	d, gr, t, db float64
+func Score(h, rho, vw float64) float64 {
+	return (PowerClimb(climb.wkg*Mr, climb.d, h, rho, vw, climb.gr) +
+		PowerTT(tt.wkg*Mr, tt.d, h, rho, vw, tt.gr)) / 2
 }
 
-
-func TT(d, gr, t, db, h, rho, vw, dw float64) {
-	s := &Slice{d: d, gr: gr, t: t, db: db}
-	return SlicedTTM([]Slice{s}, h, rho, vw, db, dw)
+func TimeClimb(p, d, h, rho, vw, gr float64) float64 {
+	return Time360(p, d, h, rho, CdaClimb, vw, gr, Mr+Mb)
 }
 
-// TODO(kjs): want both time and power functionality:
-// - power functionaly for effort independent model (fixed W/kg),
-// - time functionality for figuring out after fact how performance was affected
+func PowerClimb(p, d, h, rho, vw, gr float64) float64 {
+	return Power360(p, d, h, rho, CdaClimb, vw, gr, Mr+Mb)
+}
 
-func SlicedTT(slices []*Slice, h, rho, vw, db, dw float64) {
-	for _, s := slices {
+func TimeTT(p, d, h, rho, vw, gr float64) float64 {
+	return Time360(p, d, h, rho, CdaTT, vw, gr, Mr+Mb)
+}
 
+func PowerTT(p, d, h, rho, vw, gr float64) float64 {
+	return Power360(t, d, h, rho, CdaTT, vw, gr, Mr+Mb)
+}
 
+func Time360(p, d, h, rho, cda, vw, gr, mt float64) float64 {
+	s := 0.0
+	for dw := 0; dw < 360; dw++ {
+		s += Time(p, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
 	}
+	return s / 360
+}
+
+func Power360(t, d, h, rho, cda, vw, gr, mt float64) float64 {
+	s := 0.0
+	for dw := 0; dw < 360; dw++ {
+		s += Power(t, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+	}
+	return s / 360
+}
+
+func Time(p, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+	t := time(p, d, calc.Rho(h, calc.G), cda, vw, dw, db, gr, mt)
+	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
+	return p / p2
+}
+
+func Power(t, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+	p1 := power(t, d, calc.Rho(h, calc.G), cda, vw, dw, db, gr, mt)
+	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
+	return p1 / p2
 }
 
 func time(p, d, rho, cda, vw, dw, db, gr, mt float64) float64 {
@@ -65,3 +84,4 @@ func time(p, d, rho, cda, vw, dw, db, gr, mt float64) float64 {
 func power(t, d, rho, cda, vw, dw, db, gr, mt float64) float64 {
 	vg := d / t
 	return calc.Psimp(rho, cda, calc.Crr, calc.Va(vg, vw, dw, db), vg, gr, mt, calc.G, calc.Ec, calc.Fw)
+}
