@@ -1,13 +1,3 @@
-wnf with list of points, DISTANCE INCLUDING HEIGHT
-
-func {Power,Time}Foo({p,t}, pts []geo.LatLng, h, gr, ...) {
-  // 1) compute distance and db between each point
-  // 2) assume gr same at each point and power constant
-  // 3) fraction of time proportional to fraction of total distance
-}
-
------
-
 type TrackPoint {
   LatLng geo.LatLng
   Elevation float64
