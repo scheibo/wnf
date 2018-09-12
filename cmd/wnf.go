@@ -155,7 +155,7 @@ func output(v float64) {
 	if (fi.Mode() & os.ModeCharDevice) == 0 {
 		fmt.Println(strconv.FormatFloat(v, 'f', -1, 64))
 	} else {
-		fmt.Printf("%.2f%% (%.4f)\n", (1.0-v)*100, v)
+		fmt.Printf("%.2f%% (%.4f)\n", (v-1.0)*100, v)
 	}
 }
 
