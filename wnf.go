@@ -91,49 +91,49 @@ func Time360LL(t float64, lls []geo.LatLng, h, rho, cda, vw, gr, mt float64) flo
 func Power(p, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
 	t := time(p, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
-	return p / p2
+	return p2 / p
 }
 
 func PowerLL(p float64, lls []geo.LatLng, h, rho, cda, vw, dw, gr, mt float64) float64 {
 	t := timeLL(p, lls, calc.Rho(h, calc.G), cda, 0, dw, gr, mt)
 	p2 := powerLL(t, lls, rho, cda, vw, dw, gr, mt)
-	return p / p2
+	return p2 / p
 }
 
 func Time(t, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
 	p1 := power(t, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
-	return p1 / p2
+	return p2 / p1
 }
 
 func TimeLL(t float64, lls []geo.LatLng, h, rho, cda, vw, dw, gr, mt float64) float64 {
 	p1 := powerLL(t, lls, calc.Rho(h, calc.G), cda, 0, dw, gr, mt)
 	p2 := powerLL(t, lls, rho, cda, vw, dw, gr, mt)
-	return p1 / p2
+	return p2 / p1
 }
 
 func Power2(p, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) float64 {
 	t := time(p, d, rho1, cda, vw1, dw1, db, gr, mt)
 	p2 := power(t, d, rho2, cda, vw2, dw2, db, gr, mt)
-	return p / p2
+	return p2 / p
 }
 
 func Power2LL(p float64, lls []geo.LatLng, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) float64 {
 	t := timeLL(p, lls, rho1, cda, vw1, dw1, gr, mt)
 	p2 := powerLL(t, lls, rho2, cda, vw2, dw2, gr, mt)
-	return p / p2
+	return p2 / p
 }
 
 func Time2(t, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) float64 {
 	p1 := power(t, d, rho1, cda, vw1, dw1, db, gr, mt)
 	p2 := power(t, d, rho2, cda, vw2, dw2, db, gr, mt)
-	return p1 / p2
+	return p2 / p1
 }
 
 func Time2LL(t float64, lls []geo.LatLng, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) float64 {
 	p1 := powerLL(t, lls, rho1, cda, vw1, dw1, gr, mt)
 	p2 := powerLL(t, lls, rho2, cda, vw2, dw2, gr, mt)
-	return p1 / p2
+	return p2 / p1
 }
 
 func time(p, d, rho, cda, vw, dw, db, gr, mt float64) float64 {
