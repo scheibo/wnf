@@ -19,118 +19,145 @@ const Mt = Mr + Mb
 const CdaClimb = 0.325 // 1.80m
 const CdaTT = 0.250    // ??
 
-func Score(h, rho, vw float64) float64 {
-	return (PowerClimb(climb.wkg*Mr, climb.d, h, rho, vw, climb.gr) +
-		PowerTT(tt.wkg*Mr, tt.d, h, rho, vw, tt.gr)) / 2
+func Score(h, rho, vw float64) (float64, float64) {
+	cc1, cc2 := PowerClimb(climb.wkg*Mr, climb.d, h, rho, vw, climb.gr)
+	tt1, tt2 := PowerTT(tt.wkg*Mr, tt.d, h, rho, vw, tt.gr))
+	return (cc1 + tt1) / 2, (cc2 + tt2) / 2
 }
 
-func PowerClimb(p, d, h, rho, vw, gr float64) float64 {
+func PowerClimb(p, d, h, rho, vw, gr float64) (float64, float64) {
 	return Power360(p, d, h, rho, CdaClimb, vw, gr, Mt)
 }
 
-func PowerClimbLL(p float64, lls []geo.LatLng, d, h, rho, vw, gr float64) float64 {
+func PowerClimbLL(p float64, lls []geo.LatLng, d, h, rho, vw, gr float64) (float64, float64) {
 	return Power360LL(p, lls, d, h, rho, CdaClimb, vw, gr, Mt)
 }
 
-func TimeClimb(t, d, h, rho, vw, gr float64) float64 {
+func TimeClimb(t, d, h, rho, vw, gr float64) (float64, float64) {
 	return Time360(t, d, h, rho, CdaClimb, vw, gr, Mt)
 }
 
-func TimeClimbLL(t float64, lls []geo.LatLng, d, h, rho, vw, gr float64) float64 {
+func TimeClimbLL(t float64, lls []geo.LatLng, d, h, rho, vw, gr float64) (float64, float64) {
 	return Time360LL(t, lls, d, h, rho, CdaClimb, vw, gr, Mt)
 }
 
-func PowerTT(p, d, h, rho, vw, gr float64) float64 {
+func PowerTT(p, d, h, rho, vw, gr float64) (float64, float64) {
 	return Power360(p, d, h, rho, CdaTT, vw, gr, Mt)
 }
 
-func PowerTTLL(p float64, lls []geo.LatLng, d, h, rho, vw, gr float64) float64 {
+func PowerTTLL(p float64, lls []geo.LatLng, d, h, rho, vw, gr float64) (float64, float64) {
 	return Power360LL(p, lls, d, h, rho, CdaTT, vw, gr, Mt)
 }
 
-func TimeTT(t, d, h, rho, vw, gr float64) float64 {
+func TimeTT(t, d, h, rho, vw, gr float64) (float64, float64) {
 	return Time360(t, d, h, rho, CdaTT, vw, gr, Mt)
 }
 
-func TimeTTLL(t float64, lls []geo.LatLng, d, h, rho, vw, gr float64) float64 {
+func TimeTTLL(t float64, lls []geo.LatLng, d, h, rho, vw, gr float64) (float64, float64) {
 	return Time360LL(t, lls, d, h, rho, CdaTT, vw, gr, Mt)
 }
 
-func Power360(p, d, h, rho, cda, vw, gr, mt float64) float64 {
-	s := 0.0
+func Power360(p, d, h, rho, cda, vw, gr, mt float64) (float64, float64) {
+	tot1, tot2 := 0.0, 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += Power(p, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		s1, s2 := Power(p, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		tot1 += s1
+		tot2 += s2
 	}
-	return s / 360
+	return tot1 / 360, tot2 / 360
 }
 
-func Power360LL(p float64, lls []geo.LatLng, d, h, rho, cda, vw, gr, mt float64) float64 {
-	s := 0.0
+func Power360LL(p float64, lls []geo.LatLng, d, h, rho, cda, vw, gr, mt float64) (float64, float64) {
+	tot1, tot2 := 0.0, 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += PowerLL(p, lls, d, h, rho, cda, vw, float64(dw), gr, mt)
+		s1, s2 := PowerLL(p, lls, d, h, rho, cda, vw, float64(dw), gr, mt)
+		tot1 += s1
+		tot2 += s2
 	}
-	return s / 360
+	return tot1 / 360, tot2 / 360
 }
 
-func Time360(t, d, h, rho, cda, vw, gr, mt float64) float64 {
-	s := 0.0
+func Time360(t, d, h, rho, cda, vw, gr, mt float64) (float64, float64) {
+	tot1, tot2 := 0.0, 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += Time(t, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		s1, s2 := Time(t, d, h, rho, cda, vw, float64(dw), 0, gr, mt)
+		tot1 += s1
+		tot2 += s2
 	}
-	return s / 360
+	return tot1 / 360, tot2 / 360
 }
 
-func Time360LL(t float64, lls []geo.LatLng, d, h, rho, cda, vw, gr, mt float64) float64 {
-	s := 0.0
+func Time360LL(t float64, lls []geo.LatLng, d, h, rho, cda, vw, gr, mt float64) (float64, float64) {
+	tot1, tot2 := 0.0, 0.0
 	for dw := 0; dw < 360; dw++ {
-		s += TimeLL(t, lls, d, h, rho, cda, vw, float64(dw), gr, mt)
+		s1, s2 := TimeLL(t, lls, d, h, rho, cda, vw, float64(dw), gr, mt)
+		tot1 += s1
+		tot2 += s2
 	}
-	return s / 360
+	return tot1 / 360, tot2 / 360
 }
 
-func Power(p, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+// TODO
+func Power(p, d, h, rho, cda, vw, dw, db, gr, mt float64) (float64, float64) {
 	t := time(p, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
+
+	// how much power for same time?
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
+
+	// how much faster given same power? = wrong, want how much faster given power
+	// AND curve
+
+	mr := mt - Mb
+	ratio := (p / (mt - Mb)) / (cp(t) / Mr) // fraction of CP curve
+
 	return p2 / p
 }
 
-func PowerLL(p float64, lls []geo.LatLng, d, h, rho, cda, vw, dw, gr, mt float64) float64 {
+
+// TODO
+func PowerLL(p float64, lls []geo.LatLng, d, h, rho, cda, vw, dw, gr, mt float64) (float64, float64) {
 	t := timeLL(p, lls, d, calc.Rho(h, calc.G), cda, 0, dw, gr, mt)
 	p2 := powerLL(t, lls, d, rho, cda, vw, dw, gr, mt)
 	return p2 / p
 }
 
-func Time(t, d, h, rho, cda, vw, dw, db, gr, mt float64) float64 {
+// TODO
+func Time(t, d, h, rho, cda, vw, dw, db, gr, mt float64) (float64, float64) {
 	p1 := power(t, d, calc.Rho(h, calc.G), cda, 0, dw, db, gr, mt)
 	p2 := power(t, d, rho, cda, vw, dw, db, gr, mt)
 	return p2 / p1
 }
 
-func TimeLL(t float64, lls []geo.LatLng, d, h, rho, cda, vw, dw, gr, mt float64) float64 {
+// TODO
+func TimeLL(t float64, lls []geo.LatLng, d, h, rho, cda, vw, dw, gr, mt float64) (float64, float64) {
 	p1 := powerLL(t, lls, d, calc.Rho(h, calc.G), cda, 0, dw, gr, mt)
 	p2 := powerLL(t, lls, d, rho, cda, vw, dw, gr, mt)
 	return p2 / p1
 }
 
-func Power2(p, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) float64 {
+// TODO
+func Power2(p, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) (float64, float64) {
 	t := time(p, d, rho1, cda, vw1, dw1, db, gr, mt)
 	p2 := power(t, d, rho2, cda, vw2, dw2, db, gr, mt)
 	return p2 / p
 }
 
-func Power2LL(p float64, lls []geo.LatLng, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) float64 {
+// TODO
+func Power2LL(p float64, lls []geo.LatLng, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) (float64, float64) {
 	t := timeLL(p, lls, d, rho1, cda, vw1, dw1, gr, mt)
 	p2 := powerLL(t, lls, d, rho2, cda, vw2, dw2, gr, mt)
 	return p2 / p
 }
 
-func Time2(t, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) float64 {
+// TODO
+func Time2(t, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, db, gr, mt float64) (float64, float64) {
 	p1 := power(t, d, rho1, cda, vw1, dw1, db, gr, mt)
 	p2 := power(t, d, rho2, cda, vw2, dw2, db, gr, mt)
 	return p2 / p1
 }
 
-func Time2LL(t float64, lls []geo.LatLng, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) float64 {
+// TODO
+func Time2LL(t float64, lls []geo.LatLng, d, rho1, rho2, cda, vw1, vw2, dw1, dw2, gr, mt float64) (float64, float64) {
 	p1 := powerLL(t, lls, d, rho1, cda, vw1, dw1, gr, mt)
 	p2 := powerLL(t, lls, d, rho2, cda, vw2, dw2, gr, mt)
 	return p2 / p1
@@ -198,6 +225,10 @@ func powerLL(tt float64, lls []geo.LatLng, d, rho, cda, vw, dw, gr, mt float64) 
 	}
 
 	return p
+}
+
+func cp(t float64) float64 {
+	return 422.58 + 23296.7801287949/t
 }
 
 func distance(p1, p2 geo.LatLng, gr float64) float64 {
